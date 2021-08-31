@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DtoUsuario {
 
-    
+    private Long id;
 	private String primerNombre;
 	private String segundoNombre;
 	private String primerApellido;

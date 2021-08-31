@@ -15,8 +15,7 @@ spring:
     console:
       enabled: true
       path: /h2
-  datasource:
-    
+  datasource: 
     username: sa
     password: 
     platform: h2

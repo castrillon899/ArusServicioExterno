@@ -13,8 +13,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ComandoUsuario{
 
-    private Long id;
-    private String nombre;
-    private String clave;
-    private LocalDateTime fecha;
+	 
+	private String primerNombre;
+	private String segundoNombre;
+	private String primerApellido;
+	private String segundoApellido;
+	private String tipoDeDocumento;
+	private String documento;
+	private String administradoraSalud;
+	private LocalDateTime fechaAfiliacionASalud;
+	private String administradoraDePension;
+	private LocalDateTime fechaAfiliacionAPension;
 }
