@@ -66,3 +66,228 @@ los valores devuelto .Se esperaria aumentar el tiempo cada vez que un bloque se 
 
 *Cualquier duda o aporte con este bloque contactar a juan.botero@ceiba.com.co o juan.castano@ceiba.com.co*
 Hash de git relacionado: 01a59693
+
+
+
+
+
+
+
+
+package co.tcc.httpconsumer;
+
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import oauth.signpost.OAuthConsumer;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+import oauth.signpost.signature.AuthorizationHeaderSigningStrategy;
+import oauth.signpost.signature.HmacSha256MessageSigner;
+import oauth.signpost.signature.OAuthMessageSigner;
+import oauth.signpost.signature.SigningStrategy;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
+public class TCCConsumerServiceJustoYBueno {
+  private OAuthConsumer oAuthConsumer;
+  
+  private ResponseUtility responseUtility;
+  
+  private String consumerKey;
+  
+  private String consumerSecret;
+  
+  private String accessToken;
+  
+  private String accessTokenSecret;
+  
+  private String url;
+  
+  private String guiaId;
+  
+  private String estadoGuia;
+  
+  private String courierId;
+  
+  private String readTimeout;
+  
+  private String connectionTimeout;
+  
+  public String getReadTimeout() {
+    return this.readTimeout;
+  }
+  
+  public void setReadTimeout(String readTimeout) {
+    this.readTimeout = readTimeout;
+  }
+  
+  public String getConnectionTimeout() {
+    return this.connectionTimeout;
+  }
+  
+  public void setConnectionTimeout(String connectionTimeout) {
+    this.connectionTimeout = connectionTimeout;
+  }
+  
+  public ResponseUtility getResponseUtility() {
+    return this.responseUtility;
+  }
+  
+  public void setResponseUtility(ResponseUtility responseUtility) {
+    this.responseUtility = responseUtility;
+  }
+  
+  public String getConsumerKey() {
+    return this.consumerKey;
+  }
+  
+  public void setConsumerKey(String consumerKey) {
+    this.consumerKey = consumerKey;
+  }
+  
+  public String getConsumerSecret() {
+    return this.consumerSecret;
+  }
+  
+  public void setConsumerSecret(String consumerSecret) {
+    this.consumerSecret = consumerSecret;
+  }
+  
+  public String getAccessToken() {
+    return this.accessToken;
+  }
+  
+  public void setAccessToken(String accessToken) {
+    this.accessToken = accessToken;
+  }
+  
+  public String getAccessTokenSecret() {
+    return this.accessTokenSecret;
+  }
+  
+  public void setAccessTokenSecret(String accessTokenSecret) {
+    this.accessTokenSecret = accessTokenSecret;
+  }
+  
+  public String getUrl() {
+    return this.url;
+  }
+  
+  public void setUrl(String url) {
+    this.url = url;
+  }
+  
+  public String getGuiaId() {
+    return this.guiaId;
+  }
+  
+  public void setGuiaId(String guiaId) {
+    this.guiaId = guiaId;
+  }
+  
+  public String getEstadoGuia() {
+    return this.estadoGuia;
+  }
+  
+  public void setEstadoGuia(String estadoGuia) {
+    this.estadoGuia = estadoGuia;
+  }
+  
+  public String getCourierId() {
+    return this.courierId;
+  }
+  
+  public void setCourierId(String courierId) {
+    this.courierId = courierId;
+  }
+  
+  public void setupContext(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
+    this.oAuthConsumer = (OAuthConsumer)new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
+    this.oAuthConsumer.setTokenWithSecret(accessToken, accessTokenSecret);
+    this.oAuthConsumer.setMessageSigner((OAuthMessageSigner)new HmacSha256MessageSigner());
+    this.oAuthConsumer.setSigningStrategy((SigningStrategy)new AuthorizationHeaderSigningStrategy());
+  }
+  
+  public void authorize(HttpRequestBase httpRequest) throws Exception {
+    this.oAuthConsumer.sign(httpRequest);
+  }
+  
+  public ResponseUtility executeGetRequest() {
+    HttpPut httpPut;
+    setupContext(this.consumerKey, this.consumerSecret, this.accessToken.equals("SIN_PARAMETRO") ? null : this.accessToken, 
+        this.accessTokenSecret.equals("SIN_PARAMETRO") ? null : this.accessTokenSecret);
+    this.responseUtility = new ResponseUtility();
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpParams params = client.getParams();
+    HttpConnectionParams.setConnectionTimeout(params, Integer.parseInt(this.connectionTimeout));
+    HttpConnectionParams.setSoTimeout(params, Integer.parseInt(this.readTimeout));
+    client.getParams().setParameter("http.protocol.content-charset", "UTF-8");
+    HttpRequestBase httpRequest = null;
+    String urlRequest = urlChange();
+    this.responseUtility.setRequest(urlRequest);
+    URI uri = null;
+    try {
+      uri = new URI(urlRequest);
+    } catch (URISyntaxException e) {
+      this.responseUtility.setCode("-1");
+      this.responseUtility.setResponse(e.toString());
+      return this.responseUtility;
+    } 
+    String methodtype = "PUT";
+    if (methodtype.equals("PUT"))
+      httpPut = new HttpPut(uri); 
+    httpPut.addHeader("content-type", "application/json");
+    httpPut.addHeader("Accept", "application/json");
+    try {
+      authorize((HttpRequestBase)httpPut);
+    } catch (Exception e) {
+      this.responseUtility.setCode("-1");
+      this.responseUtility.setResponse(e.toString());
+      return this.responseUtility;
+    } 
+    HttpResponse httpResponse = null;
+    try {
+      HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+      httpResponse = client.execute(target, (HttpRequest)httpPut);
+      InputStream inputStraem = httpResponse.getEntity().getContent();
+      StringWriter writer = new StringWriter();
+      IOUtils.copy(inputStraem, writer, "UTF-8");
+      String output = writer.toString();
+      this.responseUtility.setCode(String.valueOf(httpResponse.getStatusLine().getStatusCode()));
+      this.responseUtility.setResponse(output);
+    } catch (Exception e) {
+      this.responseUtility.setCode("-2");
+      this.responseUtility.setResponse(e.toString());
+    } 
+    return this.responseUtility;
+  }
+  
+  private String urlChange() {
+    return String.format(this.url, new Object[] { this.guiaId, this.estadoGuia, this.courierId });
+  }
+  
+  public static void main(String[] args) {
+    TCCConsumerServiceJustoYBueno customerJustoYBueno = new TCCConsumerServiceJustoYBueno();
+    customerJustoYBueno.setConsumerKey("ck_62310c4c990d5e92cb9ab66db15ba740e58171ce");
+    customerJustoYBueno.setConsumerSecret("cs_120c442c7c3b918a37faf55ba56b56185b182fa6");
+    customerJustoYBueno.setAccessToken("SIN_PARAMETRO");
+    customerJustoYBueno.setAccessTokenSecret("SIN_PARAMETRO");
+    customerJustoYBueno
+      .setUrl("http://34.106.234.68/wp-json/neptuno/v1/guia/?guia_id=%s&estado_guia=%s&courier_id=%s");
+    customerJustoYBueno.setGuiaId("620001807");
+    customerJustoYBueno.setEstadoGuia("alistado");
+    customerJustoYBueno.setCourierId("TCC");
+    customerJustoYBueno.setReadTimeout("9000");
+    customerJustoYBueno.setConnectionTimeout("9000");
+    ResponseUtility xxx = customerJustoYBueno.executeGetRequest();
+    System.out.println(xxx.toString());
+  }
+}
