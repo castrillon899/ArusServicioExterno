@@ -24,7 +24,6 @@ dependencies {
 	runtimeOnly project.ext.db
 	testImplementation project.ext.flywaytest
 
-	compile 'com.h2database:h2'
 	implementation project(':dominio')
 	implementation project(':aplicacion')
 
