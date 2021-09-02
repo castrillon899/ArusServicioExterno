@@ -7,29 +7,40 @@ import java.time.LocalDateTime;
 public class UsuarioTestDataBuilder {
 
     private Long id;
-    private String nombreUsuario;
-    private String clave;
-    private LocalDateTime fecha;
+	private String primerNombre;
+	private String segundoNombre;
+	private String primerApellido;
+	private String segundoApellido;
+	private String tipoDeDocumento;
+	private String documento;
+	private String administradoraSalud;
+	private LocalDateTime fechaAfiliacionASalud;
+	private String administradoraDePension;
+	private LocalDateTime fechaAfiliacionAPension;
+	
 
     public UsuarioTestDataBuilder() {
     	id = 1L;
-        nombreUsuario = "1234";
-        clave = "1234";
-        fecha = LocalDateTime.now();
+    	primerNombre = "pepe";
+    	segundoNombre = "pepito";
+    	primerApellido = "perez";
+    	segundoApellido = "Rodriguez";
+    	tipoDeDocumento = "CC";
+    	documento = "1234";
+    	administradoraSalud = "EPS001";
+    	fechaAfiliacionASalud = LocalDateTime.now();
+    	
+    	administradoraDePension = "AFP001";
+    	fechaAfiliacionAPension = LocalDateTime.now();
+    	
+    	
+ 
     }
 
-    public UsuarioTestDataBuilder conClave(String clave) {
-        this.clave = clave;
-        return this;
-    }
-
-    public UsuarioTestDataBuilder conId(Long id) {
-        this.id = id;
-        return this;
-    }
 
     public Usuario build() {
 
-        return null;
+        return  new Usuario(id,primerNombre, segundoNombre, primerApellido, segundoApellido, tipoDeDocumento, documento,
+				administradoraSalud, fechaAfiliacionASalud, administradoraDePension, fechaAfiliacionAPension);
     }
 }
